@@ -13,11 +13,18 @@ Checks box lengths/angles.
 Si_debye(...): computes a local (per-central-atom) Debye-like sum with a window function.
 Si_reciprocal(...): computes a reciprocal-space estimator averaged over directions.
 
+3) Sarah has already got the 2 peak that exist in Tanaka's paper i think....
 
-##To-do list
-1. Align Diya’s outputs to MD trajectory 
-  Decide what one Diya “sample” is (frame vs oxygen vs oxygen×frame).
-  Build a mapping table: frame_id, oxygen_id, diya_cluster_label, ζ, (other order params).
-  Pass condition: pick any row and retrieve the exact atoms/frames in the trajectory that produced it.
 
-2. 
+
+## To-do list
+1. Quick Data Allignment Data Check
+  1. Grab the cluster that is under the same label (cluster 1/cluster2)
+  2. Match Diya samples to MD
+  3. Plot $$\zeta$$ (and any other order parameters you already have) by cluster and confirm separation.
+
+
+2. Finish the physical verification and connect it back to Diya's code
+  1. Compute conditional $$\S_{oo}(k)$$ by different cluster
+  2. Check on  $$\S(k|c=0)$$ and $$\S(k|c=1)$$ (and potentially c=2)
+  3. Compare the shape of the curve with Tanaka's paper
