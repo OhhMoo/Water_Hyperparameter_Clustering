@@ -25,6 +25,6 @@ Si_reciprocal(...): computes a reciprocal-space estimator averaged over directio
 
 
 2. Finish the physical verification and connect it back to Diya's code
-  1. Compute conditional $$\S_{oo}(k)$$ by different cluster
+  1. Compute conditional $$S_{oo}(k)$$ by different cluster
   2. Check on  $$S(k|c=0)$$ and $$S(k|c=1)$$ (and potentially c=2)
   3. Compare the shape of the curve with Tanaka's paper
