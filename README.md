@@ -1,3 +1,6 @@
+2026-02-16, 11:31
+Tags: [[ML]] [[Unsupervised ML]]
+
 # Water Structure ML Research Plan
 ### Can Machine Learning Independently Recover Physically Meaningful Water Structural States?
 **Target completion: May 1, 2026 | Start: February 16, 2026 | Duration: ~10.5 weeks**
@@ -56,8 +59,8 @@ Most ML-on-water papers validate clusters against the same features used for clu
                        ▼
 ┌─────────────────────────────────────────────────────┐
 │              ORDER PARAMETER EXTRACTION             │
-│  q_all, Q6_all, LSI_all, Sk_all, ζ_all             │
-│  20 runs × 1024 molecules = 20,480 data points     │
+│  q_all, Q6_all, LSI_all, Sk_all, ζ_all              │
+│  20 runs × 1024 molecules = 20,480 data points      │
 └──────────────────────┬──────────────────────────────┘
                        │
           ┌────────────┼────────────┐
@@ -90,8 +93,8 @@ Most ML-on-water papers validate clusters against the same features used for clu
 ┌─────────────────────────────────────────────────────┐
 │           STRUCTURE FACTOR VALIDATION               │
 │                                                     │
-│  Cluster 0 peak at kT1 = krOO/2π ≈ 3/4 → LFTS ✓  │
-│  Cluster 1 peak at kD1 = krOO/2π ≈ 1   → DNLS ✓  │
+│              Cluster 0 peak at kT1                  │
+│              Cluster 1 peak at kD1                  │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
@@ -101,14 +104,13 @@ Most ML-on-water papers validate clusters against the same features used for clu
 ## ML Methods to Explore
 
 ### Phase 1 — Baseline Methods (Weeks 1–3)
-| Method | Key parameters | Expected outcome |
-|---|---|---|
-| GMM (all 5 features) | k=2, full covariance | Moderate separation |
-| GMM (ζ only) | k=2 | Best 1D separation, Tanaka baseline |
-| GMM (q + ζ) | k=2 | Strong, physically motivated |
-| KMeans | k=2 | Weaker, spherical clusters |
-| DBSCAN | eps=0.1–0.3 | Good noise removal, poor cluster quality |
-| DBSCAN → GMM | eps then GMM | Best of both |
+| Method               | Key parameters       | Expected outcome               |
+| -------------------- | -------------------- | ------------------------------ |
+| GMM (all 5 features) | k=2, full covariance | Moderate separation            |
+| GMM (ζ only)         | k=2                  | 1D separation, Tanaka baseline |
+| GMM (q + ζ)          | k=2                  | Strong, physically motivated   |
+| KMeans               | k=2                  | Weaker, spherical clusters     |
+| DBSCAN → GMM         | eps then GMM         | Best of both                   |
 
 ### Phase 2 — Manifold Learning (Weeks 4–5)
 | Method | Key parameters | Expected outcome |
@@ -148,55 +150,30 @@ For every method, run with:
 | ζ-agreement | Label agreement with ζ threshold | > 85% |
 
 ### Physical Validation Metrics (structure factor)
-| Metric | What it measures | Target |
-|---|---|---|
-| Peak position cluster 0 | Should be kT1 ≈ 3/4 | Matches Tanaka Fig 2B |
-| Peak position cluster 1 | Should be kD1 ≈ 1 | Matches Tanaka Fig 2C |
-| Peak separation Δk | How cleanly did ML separate? | Maximize |
-| FSDP width Γ | Coherence length | Matches Tanaka Fig 4B |
-| LFTS fraction s | Order parameter | Matches Tanaka Fig 4A |
+| Metric                  | What it measures             | Target                |
+| ----------------------- | ---------------------------- | --------------------- |
+| Peak position cluster 0 | Should be kT1                | Matches Tanaka Fig 2B |
+| Peak position cluster 1 | Should be kD1                | Matches Tanaka Fig 2C |
+| Peak separation Δk      | How cleanly did ML separate? | Maximize              |
+| FSDP width Γ            | Coherence length             | Matches Tanaka Fig 4B |
+| LFTS fraction s         | Order parameter              | Matches Tanaka Fig 4A |
 
 ---
 
 ## Week-by-Week Plan
 
-### WEEK 1 (Feb 16–22): Setup & Baseline Clustering
+### WEEK 1 : Setup & Baseline Clustering
 **Goal: Clean baseline results on SWM4-NDP data with all current methods**
 
 - [x] Upload updated `water_clustering.py` to entropie server
-- [ ] Run all 5 baseline methods on SWM4-NDP T=-20°C data
-  ```bash
-  python water_clustering.py --mat_file ... --zeta_file ... --method all --confidence 0.8 -o ./results_swm4ndp_baseline
-  python water_clustering.py --mat_file ... --zeta_file ... --method dbscan_gmm --eps 0.15 -o ./results_swm4ndp_dbscan_gmm
-  ```
-- [ ] Run ζ-only GMM manually, compare S(k) peaks to full 5-feature GMM
-- [ ] Set up simulation runs for TIP4P/2005 at T=220, 230, 240 K
-- [ ] Document baseline silhouette scores in comparison table
-
-**Deliverable:** Baseline results table + first S(k) plots for SWM4-NDP
-
----
-
-### WEEK 2 (Feb 23 – Mar 1): TIP4P/2005 Simulations + Feature Ablation
-**Goal: Get rigid model data running, start feature ablation**
-
-- [ ] Launch TIP4P/2005 simulations at 220, 230, 240, 260, 300 K on entropie
-- [ ] Add `--feature_subset` argument to `water_clustering.py`
-- [ ] Run feature ablation on SWM4-NDP: {all, ζ, q+ζ, q+Q6+ζ}
-- [ ] Compute S(k) for each feature subset's clusters
+- [x] Run K-mean with all five features and generate clustering images
+- [x] Run GMM with all five features and generate clustering images. 
+- [x] Run data preprocessed with DBSCAN and them with GMM, generate the clustering images. (tried with eps=0.05, will follow on with eps = 0.06-0.10)
+- [x] Run dbscan-gmm, return the structure factor result for each cluster (bad result)
+- [x] Run ζ-only GMM manually, compare S(k) peaks to full 5-feature GMM
+- [x] Add `--feature_subset` argument to `water_clustering.py`
+- [x] Compute S(k) for each feature subset's clusters
 - [ ] Plot: silhouette score vs feature subset vs method (heatmap)
-
-**Deliverable:** Feature ablation results — which features does ML actually need?
-
----
-
-### WEEK 3 (Mar 2–8): TIP4P/2005 Analysis + Temperature Dependence
-**Goal: Replicate Tanaka's baseline with rigid model**
-
-- [ ] Process TIP4P/2005 simulation output → order parameters
-- [ ] Run full clustering pipeline on TIP4P/2005 at each temperature
-- [ ] Compute S(k|cluster) for each temperature
-- [ ] Plot: peak separation Δk vs temperature (should increase toward Ts=1/2 ≈ 237.8 K)
 - [ ] Compare LFTS fraction s vs T to Tanaka Figure 4A
 - [ ] Compare coherence length λ vs T to Tanaka Figure 4B
 
@@ -204,15 +181,15 @@ For every method, run with:
 
 ---
 
-### WEEK 4 (Mar 9–15): UMAP Implementation
+### WEEK 2: UMAP Implementation
 **Goal: Non-linear dimensionality reduction as a new clustering front**
 
-- [ ] Install umap-learn and hdbscan on entropie
+- [x] Install umap-learn and hdbscan on entropie
   ```bash
   pip install umap-learn hdbscan --break-system-packages
   ```
 - [ ] Add `umap_gmm`, `umap_hdbscan`, `pca_gmm` methods to script
-- [ ] Run UMAP on TIP4P/2005 at 240 K (strongest signal)
+- [ ] Run UMAP on TIP4P/2005 at -20T (strongest signal)
 - [ ] Visualize 2D UMAP embeddings — do two populations visually separate?
 - [ ] Compute S(k) for UMAP-derived clusters
 - [ ] Compare: does UMAP S(k) match GMM S(k)?
@@ -221,7 +198,7 @@ For every method, run with:
 
 ---
 
-### WEEK 5 (Mar 16–22): TIP5P + ST2 Simulations
+### WEEK 3: TIP5P + ST2 Simulations
 **Goal: Multi-model comparison — does ML quality track with known model ordering?**
 
 Tanaka's known ordering of structural signal strength: ST2 > TIP5P > TIP4P/2005 > SWM4-NDP
@@ -237,7 +214,7 @@ Tanaka's known ordering of structural signal strength: ST2 > TIP5P > TIP4P/2005 
 
 ---
 
-### WEEK 6 (Mar 23–29): Autoencoder Implementation
+### WEEK 4: Autoencoder Implementation
 **Goal: Deep learning baseline**
 
 - [ ] Implement simple autoencoder in PyTorch or TensorFlow
@@ -253,7 +230,7 @@ Tanaka's known ordering of structural signal strength: ST2 > TIP5P > TIP4P/2005 
 
 ---
 
-### WEEK 7 (Mar 30 – Apr 5): VAE + DEC
+### WEEK 5: VAE + DEC
 **Goal: Probabilistic and joint deep learning approaches**
 
 - [ ] Implement Variational Autoencoder (VAE)
@@ -269,7 +246,7 @@ Tanaka's known ordering of structural signal strength: ST2 > TIP5P > TIP4P/2005 
 
 ---
 
-### WEEK 8 (Apr 6–12): k > 2 Exploration
+### WEEK 6: k > 2 Exploration
 **Goal: Can ML find more than two water structural states?**
 
 This is the most original part of the project.
@@ -286,7 +263,7 @@ This is the most original part of the project.
 
 ---
 
-### WEEK 9 (Apr 13–19): Comprehensive Results Compilation
+### WEEK 7: Comprehensive Results Compilation
 **Goal: Assemble all results into coherent narrative**
 
 - [ ] Generate master comparison table: all methods × all models × all temperatures
@@ -303,7 +280,7 @@ This is the most original part of the project.
 
 ---
 
-### WEEK 10 (Apr 20–26): Writing
+### WEEK 9: Writing
 **Goal: First draft of paper**
 
 **Suggested paper structure:**
@@ -327,7 +304,7 @@ This is the most original part of the project.
 
 ---
 
-### WEEK 10.5 (Apr 27 – May 1): Polish & Submit
+### WEEK 10: Polish & Submit
 **Goal: Submission-ready manuscript**
 
 - [ ] Complete all figures (publication quality, 300 dpi)
@@ -338,12 +315,8 @@ This is the most original part of the project.
 
 ---
 
----
 
-## Risk Management
 
----
 
-*Plan generated: February 16, 2026*
-*Target submission: May 1, 2026*
-*Primary venue: Journal of Chemical Physics*
+
+
