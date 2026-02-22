@@ -15,10 +15,10 @@ The pipeline consists of four sequential stages:
 
 | Stage | Directory | Purpose |
 |-------|-----------|---------|
-| **1. MD Simulation** | `water_simulation_process/` | Run NVT trajectories; generate `.dcd` and `.pdb` files |
-| **2. Order Parameters** | `water_simulation_process/` | Compute q, Q₆, LSI, Sk, ζ from trajectories → `.mat` files |
-| **3. Clustering** | `clustering/` | Classify each molecule as LFTS or DNLS |
-| **4. Structure Factor** | `cluster_structure/` | Compute and plot S(k) and S(k,ζ) per cluster |
+| **1. MD Simulation** | `Water_Simulation` | Run NVT trajectories; generate `.dcd` and `.pdb` files |
+| **2. Order Parameters** | `Water_Simulation` | Compute q, Q₆, LSI, Sk, ζ from trajectories → `.mat` files |
+| **3. Clustering** | `.` | Classify each molecule as LFTS or DNLS |
+| **4. Structure Factor** | `.` | Compute and plot S(k) and S(k,ζ) per cluster |
 
 ---
 
