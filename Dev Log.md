@@ -193,7 +193,8 @@ Most ML-on-water papers validate clusters against the same features used for clu
 - [ ] Compute S(k) for VAE-derived clusters
 - [ ] Does VAE latent space show cleaner bimodal separation than PCA/UMAP?
 
-
-
-
+---
+### Data and README.md compilation
+- [ ] Clean up the code and data
+- [ ] Get ready for the final Readme.md file
 
