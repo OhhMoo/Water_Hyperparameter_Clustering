@@ -139,9 +139,9 @@ Most ML-on-water papers validate clusters against the same features used for clu
 
 ---
 
-## Week-by-Week Plan
+## Basic guideline
 
-### WEEK 1 : Setup & Baseline Clustering
+### Setup & Baseline Clustering
 **Goal: Clean baseline results on SWM4-NDP data with all current methods**
 
 - [x] Upload updated `water_clustering.py` to entropie server
@@ -157,22 +157,18 @@ Most ML-on-water papers validate clusters against the same features used for clu
 
 ---
 
-### WEEK 2: UMAP Implementation
+### UMAP Implementation
 **Goal: Non-linear dimensionality reduction as a new clustering front**
 
 - [x] Install umap-learn and hdbscan on entropie
   ```bash
   pip install umap-learn hdbscan --break-system-packages
   ```
-- [ ] Add `umap_gmm`, `umap_hdbscan`, `pca_gmm` methods to script
-- [ ] Run UMAP on TIP4P/2005 at -20T (strongest signal)
-- [ ] Visualize 2D UMAP embeddings — do two populations visually separate?
-- [ ] Compute S(k) for UMAP-derived clusters
-- [ ] Compare: does UMAP S(k) match GMM S(k)?
+- [x] Add `umap_gmm`, `hdbscan` methods to script
+- [x] Visualize 2D UMAP embeddings — do two populations visually separate?
 
 ---
-### WEEK 3: Autoencoder Implementation
-**Goal: Deep learning baseline**
+### Autoencoder Implementation
 - [ ] Implement simple autoencoder in PyTorch or TensorFlow
   - Architecture: 5 → 32 → 16 → 2 → 16 → 32 → 5
   - Latent dim = 2 (visualizable)
@@ -185,7 +181,7 @@ Most ML-on-water papers validate clusters against the same features used for clu
 
 ---
 
-### WEEK 4: VAE + DEC
+### VAE + DEC
 **Goal: Probabilistic and joint deep learning approaches**
 
 - [ ] Implement Variational Autoencoder (VAE)
@@ -198,57 +194,6 @@ Most ML-on-water papers validate clusters against the same features used for clu
 - [ ] Does VAE latent space show cleaner bimodal separation than PCA/UMAP?
 
 
----
-
-### WEEK 5: k > 2 Exploration
-**Goal: Can ML find more than two water structural states?**
-
-This is the most original part of the project.
-
-- [ ] Run GMM with k = 2, 3, 4, 5 on TIP4P/2005 240 K
-- [ ] Use BIC/AIC to identify optimal k
-- [ ] For k=3 or k=4: compute S(k) for each sub-cluster
-  - Do extra clusters have distinct S(k) peaks?
-  - Or do they split one of the two main populations?
-- [ ] Repeat with UMAP + HDBSCAN (lets k emerge from data naturally)
-- [ ] Physical interpretation: if a third state exists, what does its ζ distribution look like?
 
 
----
-
-### WEEK 6: Comprehensive Results Compilation
-**Goal: Assemble all results into coherent narrative**
-
-- [ ] Generate master comparison table: all methods × all models × all temperatures
-  - Silhouette score
-  - S(k) peak position cluster 0 and cluster 1
-  - Peak separation Δk
-  - LFTS fraction s
-  - ζ-agreement score
-- [ ] Identify the best-performing ML method (likely UMAP+HDBSCAN or GMM on q+ζ)
-- [ ] Identify the worst-performing conditions (SWM4-NDP, high T) — this is also a finding
-- [ ] Draft figures for paper
-
-
----
-
-### WEEK 7: Writing
-**Goal: First draft of paper**
-
-**Suggested paper structure:**
-1. Introduction — water's two-state problem, why ML validation matters
-2. Methods — MD simulation details, order parameter definitions, ML methods, S(k) calculation
-3. Results
-   - 3.1 Baseline: Classical ML on SWM4-NDP (establish the challenge)
-   - 3.2 Rigid models: Temperature dependence of ML cluster quality
-   - 3.3 Feature ablation: Which order parameters does ML need?
-   - 3.4 Manifold learning: UMAP reveals structure invisible to GMM
-   - 3.5 Deep learning: Autoencoder latent space as structural representation
-   - 3.6 Beyond two states: Can ML find k > 2 structural populations?
-4. Discussion — physical interpretation, comparison to Tanaka, implications
-5. Conclusions
-
-- [ ] Write Methods section (most straightforward, do first)
-- [ ] Write Results 3.1 and 3.2 (core findings)
-- [ ] Outline Discussion
 
