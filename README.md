@@ -254,6 +254,5 @@ python structure_factor_bycluster.py \
 ---
 
 ## Reference
-
-Shi, R. & Tanaka, H. (2020). *Microscopic Structural Descriptor of Liquid Water*.  
-**J. Am. Chem. Soc.**, 142(6), 2868–2875. https://doi.org/10.1021/jacs.9b11895
+Shi, R. & Tanaka, H. (2020). *Direct Evidence in the Scattering Function for the Coexistence of Two Types of Local Structures in Liquid Water*.  
+J. Am. Chem. Soc. 2020, 142, 2868−2875 [https://doi.org/10.1021/jacs.9b11895](https://dx.doi.org/10.1021/jacs.9b11211)
