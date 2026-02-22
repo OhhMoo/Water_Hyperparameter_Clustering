@@ -1,6 +1,6 @@
-# Water Structure Analysis Pipeline
+# Water Hyperparameter & Structure Analysis
 
-A computational pipeline for identifying and characterizing structural states in supercooled water using molecular dynamics simulations. Implements the two-state thermodynamic framework of Shi & Tanaka (JACS 2020), distinguishing **Locally Favored Tetrahedral Structures (LFTS)** from **Disordered Normal-Liquid Structures (DNLS)** in TIP4P/2005 and TIP5P water models.
+A computational pipeline for identifying and characterizing structural states in water using clustering algorithms. Implements the two-state thermodynamic framework of Shi & Tanaka (JACS 2020), distinguishing **Locally Favored Tetrahedral Structures (LFTS)** from **Disordered Normal-Liquid Structures (DNLS)** in TIP4P/2005 and TIP5P water models.
 
 ---
 
@@ -8,7 +8,7 @@ A computational pipeline for identifying and characterizing structural states in
 
 ```
 MD Simulation  →  Order Parameters  →  Clustering  →  Structure Factor S(k,ζ)
-   (OpenMM)         (.mat files)       (GMM / HDBSCAN)    (3D surface plots)
+   (OpenMM)         (.mat files)                       (3D surface plots)
 ```
 
 The pipeline consists of four sequential stages:
@@ -25,22 +25,20 @@ The pipeline consists of four sequential stages:
 ## Requirements
 
 ```bash
-conda create -n waterenv python=3.11
-conda activate waterenv
 conda install -c conda-forge openmm mdtraj numpy scipy matplotlib seaborn scikit-learn plotly
-conda install -c conda-forge umap-learn   # for UMAP pre-processing
+conda install -c conda-forge umap-learn
 ```
 
 ---
 
-## Stage 1 — MD Simulation
+## 1. MD Simulation
 
-**Scripts:** `water_simulation_process/runWater_tip5p.py`, `runWater_tip4p2005.py`
+**Scripts:** `Water_Simulation/runWater_tip5p.py`, `runWater_tip4p2005.py`
 
 Run NVT molecular dynamics for 1024 water molecules at multiple temperatures (0°C to −30°C). Uses OpenMM with the TIP5P or TIP4P/2005 force field.
 
 ```bash
-cd water_simulation_process/
+cd Water_Simulation/
 python runWater_tip5p.py       # TIP5P, all temperatures (parallel)
 python runWater_tip4p2005.py   # TIP4P/2005, all temperatures
 ```
@@ -51,9 +49,9 @@ python runWater_tip4p2005.py   # TIP4P/2005, all temperatures
 
 ---
 
-## Stage 2 — Order Parameters
+## 2. Order Parameters
 
-**Scripts:** `water_simulation_process/run_batch_params.py`, `run_single_condition.py`
+**Scripts:** `Water_Simulation/run_batch_params.py`, `run_single_condition.py`
 
 Computes five structural order parameters per molecule per frame from the trajectory:
 
@@ -80,11 +78,11 @@ python run_batch_params.py --model tip4p2005
 
 ---
 
-## Stage 3 — Clustering
+## 3. Clustering
 
-**Script:** `clustering/water_clustering.py`
+**Script:** `water_clustering.py`
 
-Clusters water molecules into LFTS and DNLS states using the order parameters computed in Stage 2.
+Clusters water molecules into LFTS and DNLS states using the order parameters computed in step 2.
 
 ### Available Methods
 
@@ -98,13 +96,10 @@ Clusters water molecules into LFTS and DNLS states using the order parameters co
 | `hdbscan` | HDBSCAN only | Density-adaptive; finds variable-size clusters |
 
 ### Optional Pre-processing
-
 Dimensionality reduction before clustering often reveals cleaner separation:
-
 - **`--umap`** — non-linear manifold embedding (recommended for high-dimensional feature sets)
 
 ### Example Commands
-
 **Recommended — UMAP → HDBSCAN → GMM:**
 ```bash
 python water_clustering.py \
@@ -115,7 +110,7 @@ python water_clustering.py \
   --out_dir ./tip5p_T-20_umap_hdbscan_gmm
 ```
 
-**UMAP → DBSCAN → GMM:**
+**DBSCAN → GMM:**
 ```bash
 python water_clustering.py \
   --mat_file  ../water_param_data/OrderParam_tip5p_T-20_Run01.mat \
@@ -124,15 +119,6 @@ python water_clustering.py \
   --umap-n-neighbors 15 --umap-min-dist 0.05 \
   --eps 0.05 --min_samples 30 \
   --out_dir ./tip5p_T-20_umap_dbscan_gmm
-```
-
-**GMM on ζ only (Tanaka original approach):**
-```bash
-python water_clustering.py \
-  --mat_file  ../water_param_data/OrderParam_tip4p2005_T-20_Run01.mat \
-  --zeta_file ../water_param_data/OrderParamZeta_tip4p2005_T-20_Run01.mat \
-  --n_runs 20 --method gmm --features zeta_all \
-  --out_dir ./tip4p2005_T-20_gmm
 ```
 
 ### Key Arguments
@@ -166,24 +152,11 @@ python water_clustering.py \
 └── {method}_umap_embedding.png     # UMAP 2D embedding (if --umap used)
 ```
 
-### Silhouette Evaluation (optional)
-
-Sweep DBSCAN parameters to find the optimal epsilon and min_samples:
-
-```bash
-python silhouette_evaluation.py \
-  --mat_file  ../water_param_data/OrderParam_tip4p2005_T-20_Run01.mat \
-  --zeta_file ../water_param_data/OrderParamZeta_tip4p2005_T-20_Run01.mat \
-  --eps-min 0.04 --eps-max 0.3 --eps-steps 40 \
-  --min-samples-range 3 5 10 15 20 30 40 50 \
-  --n_runs 20 --out_dir ./silhouette_evaluation
-```
-
 ---
 
-## Stage 4 — Structure Factor Analysis
+## 4. Structure Factor Analysis
 
-**Scripts:** `cluster_structure/convert_cluster_labels.py`, `structure_factor_bycluster.py`
+**Scripts:** `convert_cluster_labels.py`, `structure_factor_by_cluster.py`
 
 Computes the structure factor S(k) and the ζ-resolved surface S(k, ζ) per cluster, replicating Figures 2D–2E of Shi & Tanaka (JACS 2020).
 
@@ -203,7 +176,7 @@ python convert_cluster_labels.py \
 ### Step 4b — Compute S(k) and S(k, ζ)
 
 ```bash
-python structure_factor_bycluster.py \
+python structure_factor_by_cluster.py \
   --dcd-file  ../water_sim_data/tip5p_runs/dcd_tip5p_T-20_N1024_Run01_0.dcd \
   --pdb-file  ../water_sim_data/tip5p_runs/inistate_tip5p_T-20_N1024_Run01.pdb \
   --zeta-file ../water_param_data/OrderParamZeta_tip5p_T-20_Run01.mat \
@@ -220,19 +193,17 @@ python structure_factor_bycluster.py \
 | `--dcd-file` | required | DCD trajectory file |
 | `--pdb-file` | required | PDB topology file |
 | `--zeta-file` | None | Path to `OrderParamZeta_*.mat` (enables S(k,ζ) plots) |
-| `--cluster-labels` | None | Cluster labels matrix CSV |
 | `--cluster-only` | False | Skip all-atoms S(k); compute per-cluster only (faster) |
 | `--model-name` | `unknown` | Water model label for plot titles |
 | `--temperature` | None | Temperature in °C |
 | `--rc-cutoff` | 1.5 | Neighbour cutoff distance (nm) |
-| `--k-max` | 50.0 | Maximum wave number (nm⁻¹) |
 | `--n-frames` | all | Limit number of frames (useful for testing) |
 | `--output-dir` | `./structure_factor_results` | Output directory |
 
 ### Output
 
 ```
-results_3d/{condition}/
+output_dir/{condition}/
 ├── structure_factor_cluster{n}_norm_{model}_T{temp}.png    # S(k) per cluster (static)
 ├── structure_factor_per_cluster_norm_{model}_T{temp}.png   # All clusters overlaid
 ├── 3d_sk_zeta_cluster{n}_{model}_T{temp}.png               # Matplotlib 3D S(k,ζ) surface
@@ -278,36 +249,6 @@ python structure_factor_bycluster.py \
   --cluster-labels ./cluster_labels_matrix_tip5p_T-20_umap_hdbscan_gmm.csv \
   --cluster-only --model-name tip5p --temperature -20 \
   --output-dir ./results_3d/tip5p_T-20_umap_hdbscan_gmm
-```
-
----
-
-## Directory Structure
-
-```
-michael/
-├── water_simulation_process/   # Stage 1–2: MD runs and order parameter calculation
-│   ├── MDWater.py              # OpenMM simulation engine
-│   ├── runWater_tip5p.py       # TIP5P simulation launcher
-│   ├── runWater_tip4p2005.py   # TIP4P/2005 simulation launcher
-│   ├── run_batch_params.py     # Batch order parameter extraction
-│   └── run_single_condition.py # Single condition order parameter extraction
-│
-├── water_sim_data/             # Raw trajectory output (.dcd, .pdb)
-├── water_param_data/           # Order parameter files (.mat)
-│
-├── clustering/                 # Stage 3: LFTS/DNLS classification
-│   ├── water_clustering.py     # Main clustering script
-│   └── silhouette_evaluation.py
-│
-├── cluster_structure/          # Stage 4: Structure factor analysis
-│   ├── convert_cluster_labels.py
-│   ├── structure_factor_bycluster.py
-│   ├── sk_zeta_3d.py           # S(k,ζ) computation and plotting
-│   └── results_3d/             # Generated plots
-│
-└── calc_structure_fac/         # All-atoms S(k) (independent of clustering)
-    └── compute_structure_factor.py
 ```
 
 ---
